@@ -1,19 +1,36 @@
 .rate-card {
     margin: auto;
     width: 90%;
-    max-width: 800px;
+    max-width: 700px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: none;
 }
 
 .ant-card-body {
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
-.col {
-    min-width: 250px;
+section {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.inputs-section {
+    margin-bottom: 1rem;
+}
+
+.input-field {
+    margin-bottom: 2rem;
+}
+
+article {
+    width: 49%;
+    min-width: 300px;
 }
 
 .ant-card-body {
@@ -58,4 +75,15 @@
     transform: translateY(-50%);
     border-radius: 50%;
     background-color: blue;
+}
+
+@media screen and (max-width: 767px) {
+    .input-field {
+        margin-bottom: 2rem;
+    }
+    
+    article {
+        width: 100%;
+        min-width: 100%;
+    }
 }

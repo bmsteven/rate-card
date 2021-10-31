@@ -1,0 +1,1 @@
+export const access_key = "yor http://api.currencylayer.com/live api key"

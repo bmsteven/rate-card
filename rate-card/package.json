@@ -11,6 +11,7 @@
     "@types/react": "^17.0.33",
     "@types/react-dom": "^17.0.10",
     "antd": "^4.16.13",
+    "axios": "^0.24.0",
     "react": "^17.0.2",
     "react-currency-input-field": "^3.6.0",
     "react-dom": "^17.0.2",

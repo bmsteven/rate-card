@@ -1,9 +1,15 @@
-import RateCard from "./components/rate-card"
+import RateCard from "./lib"
+import { access_key } from "./key"
 
 function App() {
   return (
     <div className="App">
-      <RateCard />
+      <RateCard
+        apiKey={access_key}
+        options={["USDC", "XML"]}
+        currencies={["XML", "USDC", "KES", "RWF", "TZS"]}
+        defaultSelected="USDC"
+      />
     </div>
   )
 }
