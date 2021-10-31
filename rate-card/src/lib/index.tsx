@@ -20,9 +20,9 @@ interface Props {
   errorClass?: string
 }
 
-const customOptions = ["USDC", "XML"]
+const customOptions = ["USD", "XML"]
 
-const customCurrencies = ["XML", "USDC", "KES", "RWF", "TZS"]
+const customCurrencies = ["XML", "USD", "KES", "RWF", "TZS"]
 
 const customCurrencyConverter = (
   target: string,
@@ -57,6 +57,8 @@ const customCurrencyConverter = (
     )
     .then((res) => {
       setLoading(false)
+      console.log(res?.data)
+
       if (res?.data?.quotes) {
         setResults(res?.data?.quotes)
       }
@@ -328,12 +330,6 @@ const Rate: FC<RateProps> = ({
       setIsResult(true)
     }
   }, [rates, amount])
-
-  console.log(
-    parseFloat(splitValue[0]) === 0,
-    parseFloat(splitValue[1]),
-    splitValue
-  )
 
   return (
     <article
