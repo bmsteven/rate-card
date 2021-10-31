@@ -6,9 +6,9 @@ function App() {
     <div className="App">
       <RateCard
         apiKey={access_key}
-        options={["USDC", "XML"]}
-        currencies={["XML", "USDC", "KES", "RWF", "TZS"]}
-        defaultSelected="USDC"
+        options={["USD", "XML"]}
+        currencies={["XML", "USD", "KES", "RWF", "TZS"]}
+        defaultSelected="USD"
       />
     </div>
   )

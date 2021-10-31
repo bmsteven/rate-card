@@ -33,12 +33,15 @@ const customCurrencyConverter = (
   setLoading?: any,
   setError?: any
 ): any => {
+  console.log("here")
+
   if (amount === undefined || amount === null) {
     setLoading(false)
     setError("Input Error")
     return null
   }
   setLoading(true)
+  setError("")
   let newCurrencies = ""
   currencies.forEach((el, index) => {
     if (index === currencies?.length - 1) {
@@ -54,7 +57,9 @@ const customCurrencyConverter = (
     )
     .then((res) => {
       setLoading(false)
-      if (res?.data?.quotes) setResults(res?.data?.quotes)
+      if (res?.data?.quotes) {
+        setResults(res?.data?.quotes)
+      }
       if (res.data?.error) setError(res?.data?.error?.info)
     })
     .catch((err) => {
@@ -64,11 +69,6 @@ const customCurrencyConverter = (
       } else {
         setError("Error")
       }
-      // setResults({
-      //   USDKES: 111.203804,
-      //   USDRWF: 1000,
-      //   USDTZS: 2305.000336,
-      // })
     })
 }
 
@@ -130,17 +130,16 @@ const RateCard: FC<Props> = ({
   }
 
   useEffect(() => {
-    if (!error)
-      customCurrencyConverter(
-        selected,
-        amount,
-        currencies,
-        apiKey,
-        setResults,
-        setLoading,
-        setError
-      )
-  }, [amount])
+    customCurrencyConverter(
+      selected,
+      amount,
+      currencies,
+      apiKey,
+      setResults,
+      setLoading,
+      setError
+    )
+  }, [amount, selected])
 
   useEffect(() => {
     if (results) {
