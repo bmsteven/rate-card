@@ -50,11 +50,12 @@ const customCurrencyConverter = (
 
   axios
     .get(
-      `http://api.currencylayer.com/live?access_key=${apiKey}&currencies=${newCurrencies}&target=${target}&format=1`
+      `http://api.currencylayer.com/live?access_key=${apiKey}&currencies=${newCurrencies}&source=${target}&format=1`
     )
     .then((res) => {
       setLoading(false)
       if (res?.data?.quotes) setResults(res?.data?.quotes)
+      if (res.data?.error) setError(res?.data?.error?.info)
     })
     .catch((err) => {
       setLoading(false)
