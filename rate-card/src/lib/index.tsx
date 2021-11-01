@@ -21,9 +21,9 @@ interface Props {
   errorClass?: string
 }
 
-const customOptions = ["USDC", "XML"]
+const customOptions = ["XLM", "USDT"]
 
-const customCurrencies = ["XML", "USDC", "KES", "RWF", "TZS"]
+const customCurrencies = ["XLM", "USDT", "KES", "RWF", "TZS"]
 
 const customCurrencyConverter = (
   amount: number,
@@ -71,17 +71,10 @@ const customCurrencyConverter = (
   let coinslayerApi = `http://api.coinlayer.com/api/live?access_key=${coinslayer_access_key}&symbols=${newCoins}&target=USD`
   let currencylayerApi = `http://apilayer.net/api/live?access_key=${currencylayer_access_key}&currencies=${newCurrencies}&source=USD&format=1`
 
-  // api
-  // https://apilayer.net/api/live?access_key=4976c17923c1b38cd9c9683a32a3ce7a&currencies=TZS,%20KES,%20RWF&source=USD&format=1
-
-  // http://api.coinlayer.com/api/live?access_key=a747ce5048e591b5a53aa55314fc0455&symbols=XLM,USDT&target=USD
-
   // fetch coins
   axios
     .get(coinslayerApi)
     .then((res) => {
-      console.log("here", res?.data)
-
       setCoinsLoading(false)
       if (res?.data?.rates) {
         setCoinsResults(res?.data?.rates)
