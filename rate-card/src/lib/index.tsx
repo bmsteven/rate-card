@@ -26,7 +26,6 @@ const customOptions = ["USDC", "XML"]
 const customCurrencies = ["XML", "USDC", "KES", "RWF", "TZS"]
 
 const customCurrencyConverter = (
-  target: string,
   amount: number,
   currencies: string[],
   coins: string[],
@@ -51,10 +50,12 @@ const customCurrencyConverter = (
   let newCurrencies = ""
   let newCoins = ""
   currencies.forEach((el, index) => {
-    if (index === currencies?.length - 1) {
-      newCurrencies = newCurrencies + el
-    } else {
-      newCurrencies = newCurrencies + el + ","
+    if (!coins.find((e) => e === el)) {
+      if (index === currencies?.length - 1) {
+        newCurrencies = newCurrencies + el
+      } else {
+        newCurrencies = newCurrencies + el + ","
+      }
     }
   })
 
@@ -67,18 +68,25 @@ const customCurrencyConverter = (
   })
 
   // coinslayer
-  let coinslayerApi = `http://api.coinslayer.com/api/live?access_key=${coinslayer_access_key}$symbols=${newCoins}&target=USD`
-  let currencylayerApi = `http://apilayer.net.api/live?access_key=${currencylayer_access_key}&currencies=${newCurrencies}&source=USD&format=1`
+  let coinslayerApi = `http://api.coinlayer.com/api/live?access_key=${coinslayer_access_key}&symbols=${newCoins}&target=USD`
+  let currencylayerApi = `http://apilayer.net/api/live?access_key=${currencylayer_access_key}&currencies=${newCurrencies}&source=USD&format=1`
+
+  // api
+  // https://apilayer.net/api/live?access_key=4976c17923c1b38cd9c9683a32a3ce7a&currencies=TZS,%20KES,%20RWF&source=USD&format=1
+
+  // http://api.coinlayer.com/api/live?access_key=a747ce5048e591b5a53aa55314fc0455&symbols=XLM,USDT&target=USD
 
   // fetch coins
   axios
     .get(coinslayerApi)
     .then((res) => {
+      console.log("here", res?.data)
+
       setCoinsLoading(false)
       if (res?.data?.rates) {
         setCoinsResults(res?.data?.rates)
       }
-      if (res.data?.rates) setCoinsError(res?.data?.error?.info)
+      if (res.data?.error) setCoinsError(res?.data?.error?.type)
     })
     .catch((err) => {
       setCoinsLoading(false)
@@ -87,10 +95,6 @@ const customCurrencyConverter = (
       } else {
         setCoinsError("Error")
       }
-      setCoinsResults({
-        USDC: 1.002529,
-        XML: 0.373613,
-      })
     })
 
   axios
@@ -109,11 +113,6 @@ const customCurrencyConverter = (
       } else {
         setCurrenciesError("Error")
       }
-      setCurrenciesResults({
-        USDTZS: 2304.999509,
-        USDKES: 111.196692,
-        USDRWF: 1000,
-      })
     })
 }
 
@@ -182,12 +181,11 @@ const RateCard: FC<Props> = ({
 
   useEffect(() => {
     customCurrencyConverter(
-      selected,
       amount,
       currencies,
       options,
-      currencylayer_access_key,
       coinslayer_access_key,
+      currencylayer_access_key,
       setCurrenciesResults,
       setCoinsResults,
       setCoinsLoading,
@@ -226,6 +224,8 @@ const RateCard: FC<Props> = ({
     }
     setConversionRate(y)
   }, [coins, selected])
+
+  console.log(coins, rates, coinsResult, currenciesResults)
 
   return (
     <Card
@@ -275,6 +275,7 @@ const RateCard: FC<Props> = ({
             <label htmlFor="amount">Amount</label>
           </div>
           <input
+            id="amount"
             value={
               parseFloat(amount) < 10000
                 ? displayValue
@@ -298,16 +299,27 @@ const RateCard: FC<Props> = ({
       </section>
       {coinsLoading || currenciesLoading ? (
         <section>
-          <p>Please wait</p>
+          <p
+            style={{
+              textAlign: "center",
+              width: "100%",
+              fontWeight: 600,
+            }}
+          >
+            Please wait
+          </p>
         </section>
       ) : (
         <>
-          {!coinsError || !currenciesError ? (
+          {coinsError || currenciesError ? (
             <section>
               <p
                 className={`${errorClass}`}
                 style={{
                   color: "red",
+                  textAlign: "center",
+                  width: "100%",
+                  fontWeight: 600,
                   ...errorStyle,
                 }}
               >

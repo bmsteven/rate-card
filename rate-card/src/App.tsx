@@ -7,9 +7,9 @@ function App() {
       <RateCard
         coinslayer_access_key={coinslayer_access_key}
         currencylayer_access_key={currencylayer_access_key}
-        options={["USDC", "XML"]}
-        currencies={["XML", "USDC", "KES", "RWF", "TZS"]}
-        defaultSelected="USDC"
+        options={["XLM", "USDT"]}
+        currencies={["XLM", "USDT", "KES", "RWF", "TZS"]}
+        defaultSelected="USDT"
       />
     </div>
   )
