@@ -1,14 +1,15 @@
 import RateCard from "./lib"
-import { access_key } from "./key"
+import { coinslayer_access_key, currencylayer_access_key } from "./key"
 
 function App() {
   return (
     <div className="App">
       <RateCard
-        apiKey={access_key}
-        options={["USD", "XML"]}
-        currencies={["XML", "USD", "KES", "RWF", "TZS"]}
-        defaultSelected="USD"
+        coinslayer_access_key={coinslayer_access_key}
+        currencylayer_access_key={currencylayer_access_key}
+        options={["USDC", "XML"]}
+        currencies={["XML", "USDC", "KES", "RWF", "TZS"]}
+        defaultSelected="USDC"
       />
     </div>
   )

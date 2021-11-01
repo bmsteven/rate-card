@@ -15,34 +15,41 @@ interface Props {
   currencyClass?: string
   inputClass?: string
   inputStyle?: any
-  apiKey?: string
+  currencylayer_access_key: string
+  coinslayer_access_key: string
   errorStyle?: any
   errorClass?: string
 }
 
-const customOptions = ["USD", "XML"]
+const customOptions = ["USDC", "XML"]
 
-const customCurrencies = ["XML", "USD", "KES", "RWF", "TZS"]
+const customCurrencies = ["XML", "USDC", "KES", "RWF", "TZS"]
 
 const customCurrencyConverter = (
   target: string,
   amount: number,
   currencies: string[],
-  apiKey?: string,
-  setResults?: any,
-  setLoading?: any,
-  setError?: any
+  coins: string[],
+  coinslayer_access_key: string,
+  currencylayer_access_key: string,
+  setCurrenciesResults: any,
+  setCoinsResults: any,
+  setCoinsLoading: any,
+  setCurrenciesLoading: any,
+  setCoinsError: any,
+  setCurrenciesError: any
 ): any => {
-  console.log("here")
-
   if (amount === undefined || amount === null) {
-    setLoading(false)
-    setError("Input Error")
+    setCurrenciesLoading(false)
+    setCurrenciesError("Input Error")
     return null
   }
-  setLoading(true)
-  setError("")
+  setCurrenciesLoading(true)
+  setCoinsLoading(true)
+  setCurrenciesError("")
+  setCoinsError("")
   let newCurrencies = ""
+  let newCoins = ""
   currencies.forEach((el, index) => {
     if (index === currencies?.length - 1) {
       newCurrencies = newCurrencies + el
@@ -51,26 +58,62 @@ const customCurrencyConverter = (
     }
   })
 
-  axios
-    .get(
-      `http://api.currencylayer.com/live?access_key=${apiKey}&currencies=${newCurrencies}&source=${target}&format=1`
-    )
-    .then((res) => {
-      setLoading(false)
-      console.log(res?.data)
+  coins.forEach((el, index) => {
+    if (index === coins?.length - 1) {
+      newCoins = newCoins + el
+    } else {
+      newCoins = newCoins + el + ","
+    }
+  })
 
-      if (res?.data?.quotes) {
-        setResults(res?.data?.quotes)
+  // coinslayer
+  let coinslayerApi = `http://api.coinslayer.com/api/live?access_key=${coinslayer_access_key}$symbols=${newCoins}&target=USD`
+  let currencylayerApi = `http://apilayer.net.api/live?access_key=${currencylayer_access_key}&currencies=${newCurrencies}&source=USD&format=1`
+
+  // fetch coins
+  axios
+    .get(coinslayerApi)
+    .then((res) => {
+      setCoinsLoading(false)
+      if (res?.data?.rates) {
+        setCoinsResults(res?.data?.rates)
       }
-      if (res.data?.error) setError(res?.data?.error?.info)
+      if (res.data?.rates) setCoinsError(res?.data?.error?.info)
     })
     .catch((err) => {
-      setLoading(false)
+      setCoinsLoading(false)
       if (err.message === "Network Error") {
-        setError(err?.message)
+        setCoinsError(err?.message)
       } else {
-        setError("Error")
+        setCoinsError("Error")
       }
+      setCoinsResults({
+        USDC: 1.002529,
+        XML: 0.373613,
+      })
+    })
+
+  axios
+    .get(currencylayerApi)
+    .then((res) => {
+      setCurrenciesLoading(false)
+      if (res?.data?.quotes) {
+        setCurrenciesResults(res?.data?.quotes)
+      }
+      if (res.data?.error) setCurrenciesError(res?.data?.error?.info)
+    })
+    .catch((err) => {
+      setCurrenciesLoading(false)
+      if (err.message === "Network Error") {
+        setCurrenciesError(err?.message)
+      } else {
+        setCurrenciesError("Error")
+      }
+      setCurrenciesResults({
+        USDTZS: 2304.999509,
+        USDKES: 111.196692,
+        USDRWF: 1000,
+      })
     })
 }
 
@@ -84,14 +127,20 @@ const RateCard: FC<Props> = ({
   inputStyle,
   currencyStyle,
   currencyClass,
-  apiKey,
+  currencylayer_access_key,
+  coinslayer_access_key,
   errorStyle,
   errorClass,
 }) => {
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string>("")
+  const [coinsLoading, setCoinsLoading] = useState<boolean>(true)
+  const [currenciesLoading, setCurrenciesLoading] = useState<boolean>(true)
+  const [coinsError, setCoinsError] = useState<string>("")
+  const [currenciesError, setCurrenciesError] = useState<string>("")
   const [rates, setRates] = useState<any>(null)
-  const [results, setResults] = useState<any>(null)
+  const [conversionRate, setConversionRate] = useState<number>(0)
+  const [coins, setCoins] = useState<any>(null)
+  const [currenciesResults, setCurrenciesResults] = useState<any>(null)
+  const [coinsResult, setCoinsResults] = useState<any>(null)
   const [variables, setVariables] = useState<{
     selected: string
     amount: any
@@ -136,21 +185,47 @@ const RateCard: FC<Props> = ({
       selected,
       amount,
       currencies,
-      apiKey,
-      setResults,
-      setLoading,
-      setError
+      options,
+      currencylayer_access_key,
+      coinslayer_access_key,
+      setCurrenciesResults,
+      setCoinsResults,
+      setCoinsLoading,
+      setCurrenciesLoading,
+      setCoinsError,
+      setCurrenciesError
     )
-  }, [amount, selected])
+  }, [currencies, options])
 
   useEffect(() => {
-    if (results) {
-      let arr = Object?.keys(results)?.map(
-        (key) => key && { rate: key, value: results[key] }
+    if (currenciesResults) {
+      let arr = Object?.keys(currenciesResults)?.map(
+        (key) => key && { rate: key, value: currenciesResults[key] }
       )
       setRates(arr)
     }
-  }, [results])
+  }, [currenciesResults])
+
+  useEffect(() => {
+    if (coinsResult) {
+      let arr = Object?.keys(coinsResult)?.map(
+        (key) => key && { rate: key, value: coinsResult[key] }
+      )
+      setCoins(arr)
+    }
+  }, [coinsResult])
+
+  useEffect(() => {
+    let y = 0
+    if (coins) {
+      coins?.forEach((el: { rate: string; value: number }) => {
+        if (el?.rate?.includes(selected)) {
+          y = el?.value
+        }
+      })
+    }
+    setConversionRate(y)
+  }, [coins, selected])
 
   return (
     <Card
@@ -221,13 +296,13 @@ const RateCard: FC<Props> = ({
           />
         </article>
       </section>
-      {loading ? (
+      {coinsLoading || currenciesLoading ? (
         <section>
           <p>Please wait</p>
         </section>
       ) : (
         <>
-          {error ? (
+          {!coinsError || !currenciesError ? (
             <section>
               <p
                 className={`${errorClass}`}
@@ -236,7 +311,7 @@ const RateCard: FC<Props> = ({
                   ...errorStyle,
                 }}
               >
-                {error}
+                {coinsError} <br />
               </p>
             </section>
           ) : (
@@ -248,6 +323,9 @@ const RateCard: FC<Props> = ({
                     <Rate
                       key={rate}
                       rates={rates}
+                      coins={coins}
+                      conversionRate={conversionRate}
+                      selected={selected}
                       currency={rate}
                       amount={amount}
                       currencyClass={currencyClass}
@@ -265,7 +343,10 @@ const RateCard: FC<Props> = ({
 interface RateProps {
   currency: string
   amount: number
+  selected: string
   rates?: []
+  conversionRate: number
+  coins?: []
   currencyClass?: any
   currencyStyle?: any
   apiKey?: string
@@ -276,13 +357,14 @@ interface RateProps {
 const Rate: FC<RateProps> = ({
   currency,
   amount,
+  conversionRate,
   rates,
+  coins,
   currencyClass,
   currencyStyle,
 }) => {
   const [newAmount, setAmount] = useState<any>("0.00")
   const [displayAmount, setDisplayAmount] = useState<any>("0.00")
-  const [isResult, setIsResult] = useState<any>(true)
 
   const splitValue = displayAmount.split(".")
 
@@ -311,25 +393,32 @@ const Rate: FC<RateProps> = ({
 
   useEffect(() => {
     if (rates) {
-      let v = 1
+      let v, y
       rates?.forEach((el: { rate: string; value: number }) => {
+        if (
+          coins?.find(
+            (e: { rate: string; value: number }) => e.rate === currency
+          )
+        ) {
+          let x: any
+          x = coins?.find((e: any) => e.rate === currency)
+          if (x) {
+            y = x?.value
+          }
+
+          return
+        }
         if (el?.rate?.includes(currency)) {
           v = el?.value
         }
       })
-      setAmount(v * amount)
+      if (v && v > 0) {
+        setAmount(v * amount * conversionRate)
+      } else if (y && y > 0) {
+        setAmount((amount * conversionRate) / y)
+      }
     }
-  }, [rates, amount])
-
-  useEffect(() => {
-    if (rates && amount > 0) {
-      setIsResult(
-        rates.find((el: { rate: string }) => el.rate.includes(currency))
-      )
-    } else {
-      setIsResult(true)
-    }
-  }, [rates, amount])
+  }, [rates, amount, coins, conversionRate])
 
   return (
     <article
@@ -354,36 +443,24 @@ const Rate: FC<RateProps> = ({
           fontSize: 20,
         }}
       >
-        {isResult ? (
-          <>
-            <span
-              style={{
-                color:
-                  parseFloat(splitValue[0]) === 0 &&
-                  (splitValue[1] ? parseFloat(splitValue[1]) === 0 : true)
-                    ? "lightgray"
-                    : "gray",
-              }}
-            >
-              {splitValue[0]}.
-            </span>
-            <span
-              style={{
-                color: decimals() === "00" ? "lightgray" : "gray",
-              }}
-            >
-              {decimals()}
-            </span>
-          </>
-        ) : (
-          <span
-            style={{
-              color: "red",
-            }}
-          >
-            No result returned
-          </span>
-        )}
+        <span
+          style={{
+            color:
+              parseFloat(splitValue[0]) === 0 &&
+              (splitValue[1] ? parseFloat(splitValue[1]) === 0 : true)
+                ? "lightgray"
+                : "gray",
+          }}
+        >
+          {splitValue[0]}.
+        </span>
+        <span
+          style={{
+            color: decimals() === "00" ? "lightgray" : "gray",
+          }}
+        >
+          {decimals()}
+        </span>
       </p>
     </article>
   )
