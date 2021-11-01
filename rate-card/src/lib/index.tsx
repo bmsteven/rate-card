@@ -6,7 +6,7 @@ import "./rate-card.css"
 import axios from "axios"
 
 interface Props {
-  options?: string[]
+  coins?: string[]
   currencies?: string[]
   customStyles?: any
   defaultSelected?: any
@@ -21,8 +21,10 @@ interface Props {
   errorClass?: string
 }
 
-const customOptions = ["XLM", "USDT"]
+// custom coins
+const customCoins = ["XLM", "USDT"]
 
+// custom currencies
 const customCurrencies = ["XLM", "USDT", "KES", "RWF", "TZS"]
 
 const customCurrencyConverter = (
@@ -90,6 +92,7 @@ const customCurrencyConverter = (
       }
     })
 
+  // fetch currencies
   axios
     .get(currencylayerApi)
     .then((res) => {
@@ -110,9 +113,9 @@ const customCurrencyConverter = (
 }
 
 const RateCard: FC<Props> = ({
-  options = customOptions,
+  coins = customCoins,
   currencies = customCurrencies,
-  defaultSelected = options[0],
+  defaultSelected = coins[0],
   customStyles,
   customClass,
   inputClass,
@@ -130,7 +133,7 @@ const RateCard: FC<Props> = ({
   const [currenciesError, setCurrenciesError] = useState<string>("")
   const [rates, setRates] = useState<any>(null)
   const [conversionRate, setConversionRate] = useState<number>(0)
-  const [coins, setCoins] = useState<any>(null)
+  const [coin, setCoins] = useState<any>(null)
   const [currenciesResults, setCurrenciesResults] = useState<any>(null)
   const [coinsResult, setCoinsResults] = useState<any>(null)
   const [variables, setVariables] = useState<{
@@ -176,7 +179,7 @@ const RateCard: FC<Props> = ({
     customCurrencyConverter(
       amount,
       currencies,
-      options,
+      coins,
       coinslayer_access_key,
       currencylayer_access_key,
       setCurrenciesResults,
@@ -186,7 +189,7 @@ const RateCard: FC<Props> = ({
       setCoinsError,
       setCurrenciesError
     )
-  }, [currencies, options])
+  }, [currencies, coins])
 
   useEffect(() => {
     if (currenciesResults) {
@@ -208,17 +211,15 @@ const RateCard: FC<Props> = ({
 
   useEffect(() => {
     let y = 0
-    if (coins) {
-      coins?.forEach((el: { rate: string; value: number }) => {
+    if (coin) {
+      coin?.forEach((el: { rate: string; value: number }) => {
         if (el?.rate?.includes(selected)) {
           y = el?.value
         }
       })
     }
     setConversionRate(y)
-  }, [coins, selected])
-
-  console.log(coins, rates, coinsResult, currenciesResults)
+  }, [coin, selected])
 
   return (
     <Card
@@ -239,7 +240,7 @@ const RateCard: FC<Props> = ({
           </div>
           <Select
             id="currency"
-            defaultValue={options[0]}
+            defaultValue={coins[0]}
             value={selected}
             style={{
               width: "100%",
@@ -250,8 +251,8 @@ const RateCard: FC<Props> = ({
             onChange={handleSelectChange}
             className={`input-field select-input ${inputClass}`}
           >
-            {options?.length > 0 &&
-              options.map((option) => (
+            {coins?.length > 0 &&
+              coins.map((option) => (
                 <Option value={option} key={option}>
                   {option}
                 </Option>
@@ -328,7 +329,7 @@ const RateCard: FC<Props> = ({
                     <Rate
                       key={rate}
                       rates={rates}
-                      coins={coins}
+                      coins={coin}
                       conversionRate={conversionRate}
                       selected={selected}
                       currency={rate}
